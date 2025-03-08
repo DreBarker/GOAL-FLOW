@@ -1,0 +1,697 @@
+<%- include('partials/header') %>
+
+
+    <section class="home-page">
+       <%- include('partials/sidebar') %>
+
+
+       <!-- <div class="modal-overlay">
+        <modal>
+            <div class="modal-header">
+                <button class="cancel-reply">Cancel</button>
+                <span>Reply</span>
+            </div>
+
+            <div class="modal-post">
+                <div class="image-wrapper">
+                    <img src="./assets/Animoji/Bob.png" alt="profile-image">
+                </div>
+
+                <div class="modal-content">
+                    <h1>Andre</h1>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin fringilla magna non eros luctus, at aliquam erat consequat. Nunc vestibulum urna massa, vel tempus dui luctus hendrerit. Nunc ac mauris massa. Maecenas molestie iaculis eros eu auctor. Suspendisse eu elit turpis.</p>
+                </div>
+            </div>
+
+            <div class="modal-reply">
+                <div class="image-wrapper">
+                    <img src="./assets/Animoji/Aisha.png" alt="profile-image">
+                </div>
+
+                <div class="modal-content">
+                    <h1>Andre</h1>
+                   <form action="#" method="POST">
+                    <input type="text" name="comment" id="comment-input" placeholder="Reply to Andre">
+                    <button type="submit">Post</button>
+                   </form>
+                </div>
+            </div>
+        </modal>
+       </div> -->
+
+
+        <div>
+<% if (locals.pageLabel) { %>
+    <form>
+        <label for="activities" class="active"><%= pageLabel %></label>
+        <input type="submit" name="selection" value="activity" id="activities" hidden>
+    </form>
+    <% } else { %>
+        <form  onsubmit="event.preventDefault()">
+            <label for="activities" class="history-btn active">Ongoing</label>
+            <input type="submit" name="selection" value="activity" id="activities" hidden>
+
+            <label for="yours" class="history-btn">Completed</label>
+            <input type="submit" name="selection" value="yours" id="yours" hidden>
+        </form>
+        <% } %>
+  
+
+
+            <div class="threads-container">
+
+                <% if (!locals.pageLabel) { %>
+                    <!-- Home Page -->
+                    <div class="add-post-container">
+                        <% if (locals.userAvatar) { %>
+                            <a onclick="openUser(<%- userId %>, event)">
+                            <img src=<%=userAvatar %> alt="profile-image">
+                            </a>
+                            <% } else {%>
+                                <img src="./assets/images/profile-placeholder.jpg" alt="profile-image">
+                                <% } %>
+    
+                                    <span class="activity-modal-btn"> 
+                                        <p>Up to something?</p>
+                                        <img src="./assets/icons/ADD.png" alt="add-activity">
+                                    </span>
+
+
+                                    <div class="activity-modal">
+                                        <modal class=".modal-box">
+                                            <div class="modal-header">
+                                                <button class="cancel-activity">Cancel</button>
+                                                <span>Activity</span>
+                                            </div>
+                                
+                                            <div class="modal-reply">
+                                                <div class="image-wrapper">
+                                                    <a href="/user-profile/<%= user.id %>"> <img src=<% if (userAvatar) {%>
+                                                        <%= userAvatar %>
+                                                            <% } else { %>
+                                                                <%= "./assets/images/profile-placeholder.jpg" %>
+                                                                    <% } %> alt="profile-image">
+                                                    </a>
+                                                </div>
+                                
+                                                <div class="modal-content">
+                                                    <h1><%= user.display_name %></h1>
+                                                   <form action="/submit-post" method="POST">
+                                                    <input type="text" name="activity" placeholder="What are you upto?" class="activity-input" required>
+                    
+                                                    <button type="submit">Create</button>
+                                                   </form>
+                                                </div>
+                                            </div>
+                                        </modal>
+                                       </div>
+
+                    </div>
+                
+                
+                <div class="all-posts">
+                    <ul class="ongoing-history post-container show-history">
+                    <% if (locals.ongoingPosts) {%>
+                        <% if (ongoingPosts.length > 0) {%>
+                        <% ongoingPosts.forEach((post)=> { %>
+                            <li class="post-item" onclick="openPostPage(<%- post.post_id %>)">
+                                
+                                <div class="post-content">
+                                    <a onclick="openUser(<%- post.post_owner_id %>, event)"> <img src=<% if (post.image_path) {%>
+                                        <%= post.image_path %>
+                                            <% } else { %>
+                                                <%= "./assets/images/profile-placeholder.jpg" %>
+                                                    <% } %> alt="profile-image">
+                                    </a>
+
+
+                                    <div>
+                                        <div class="post-header">
+                                            <span>
+                                                <a onclick="openUser(<%- post.post_owner_id %>, event)">
+                                                    <h1>
+                                                        <%= post.display_name %>
+                                                    </h1>
+
+                                                </a>
+
+                                                <p class="time-of-post" data-timestamp="<%= post.created_at %>"> </p>
+                                            </span>
+
+                                            <div class="dropdown-container">
+                                                <button class="dropdown-button">⋮</button>
+                                                <div class="dropdown-menu">
+                                                    <a href="/user-profile/<%= post.post_owner_id %>">
+                                                    <div class="dropdown-item">View</div>
+                                                    </a>
+                                                    <% if (userId ==post.post_owner_id) {%>                                                     
+                                                            <form action="/complete-activity" method="POST">
+
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button type="submit"
+                                                                    class="dropdown-item follow">Complete</button>
+                                                               
+                                                            </form>
+                                                        <% } %>
+                                                    <% if (userId !==post.post_owner_id) {%>
+                                                        <% if (post.relationship_type !== null) { %>
+                                                            <form action="/unfollow" method="POST">
+
+                                                                <input type="hidden" name="postOwnerId"
+                                                                    value=<%=post.post_owner_id %>>
+                                                                <button type="submit"
+                                                                    class="dropdown-item unfollow">Unfollow</button>
+                                                               
+                                                            </form>
+                                                            <% } else {%>
+                                                                <form action="/follow" method="POST">
+                                                                    <input type="hidden" name="postOwnerId"
+                                                                        value=<%=post.post_owner_id  %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item follow">follow</button>
+                                                                </form>
+                                                                <% } %>
+                                            
+                                                        <% } %>
+
+                                                        <% if (!post.bookmark) { %>    
+                                                            <form action="/add-bookmark" method="POST">
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button class="dropdown-item bookmark-text">
+                                                                            Bookmark
+                                                                </button>
+                                                            </form>
+                                                            <% } else { %>    
+                                                            <form action="/remove-bookmark" method="POST">
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button class="dropdown-item bookmark-text">
+                                                                            Remove Bookmark
+                                                                </button>
+                                                            </form>
+                                                                <% } %>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="post-mesage">
+                                            <%= post.activity %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <span class="comment-logo-container" data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(post) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                        <img src="./assets/icons/COMMENT.png" alt="profile-image" >
+                                        <span>
+                                            <%= post.total_comments_and_replies%>
+                                        </span>
+
+                                </span>
+
+                                <!-- modal -->
+
+
+                            </li>
+
+                            <% }) %>
+                            <% } else { %>
+                                <span class="no-posts">No ongoing activity at the moment.</span>
+                                <% }%>
+                                <%} %>
+                                    
+
+
+                </ul>
+                    <ul class="completed-history post-container">
+                    <% if (locals.completedPosts) {%>
+                        <% if (completedPosts.length > 0) {%>
+                        <% completedPosts.forEach((post)=> { %>
+                            <li class="post-item" onclick="openPostPage(<%- post.post_id %>)">
+                                
+                                <div class="post-content">
+                                    <a onclick="openUser(<%- post.post_owner_id %>, event)"> <img src=<% if (post.image_path) {%>
+                                        <%= post.image_path %>
+                                            <% } else { %>
+                                                <%= "./assets/images/profile-placeholder.jpg" %>
+                                                    <% } %> alt="profile-image">
+                                    </a>
+
+
+                                    <div>
+                                        <div class="post-header">
+                                            <span>
+                                                <a onclick="openUser(<%- post.post_owner_id %>, event)">
+                                                    <h1>
+                                                        <%= post.display_name %>
+                                                    </h1>
+
+                                                </a>
+
+                                                <p class="time-of-post" data-timestamp="<%= post.created_at %>"> </p>
+                                            </span>
+
+                                            <div class="dropdown-container">
+                                                <button class="dropdown-button">⋮</button>
+                                                <div class="dropdown-menu">
+                                                    <a href="/user-profile/<%= post.post_owner_id %>">
+                                                    <div class="dropdown-item">View</div>
+                                                    </a>
+                                                    <% if (userId ==post.post_owner_id && post.is_active == true) {%>                                                     
+                                                            <form action="/complete-activity" method="POST">
+
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button type="submit"
+                                                                    class="dropdown-item follow">Complete</button>
+                                                               
+                                                            </form>
+                                                        <% } %>
+                                                    <% if (userId !==post.post_owner_id) {%>
+                                                        <% if (post.relationship_type !== null) { %>
+                                                            <form action="/unfollow" method="POST">
+
+                                                                <input type="hidden" name="postOwnerId"
+                                                                    value=<%=post.post_owner_id %>>
+                                                                <button type="submit"
+                                                                    class="dropdown-item unfollow">Unfollow</button>
+                                                               
+                                                            </form>
+                                                            <% } else {%>
+                                                                <form action="/follow" method="POST">
+                                                                    <input type="hidden" name="postOwnerId"
+                                                                        value=<%=post.post_owner_id  %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item follow">follow</button>
+                                                                </form>
+                                                                <% } %>
+                                            
+                                                        <% } %>
+                                                        <% if (!post.bookmark) { %>    
+                                                            <form action="/add-bookmark" method="POST">
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button class="dropdown-item bookmark-text">
+                                                                            Bookmark
+                                                                </button>
+                                                            </form>
+                                                            <% } else { %>    
+                                                            <form action="/remove-bookmark" method="POST">
+                                                                <input type="hidden" name="post-id"
+                                                                    value=<%=post.post_id %>>
+                                                                <button class="dropdown-item bookmark-text">
+                                                                            Remove Bookmark
+                                                                </button>
+                                                            </form>
+                                                                <% } %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="post-mesage completed">
+                                            <%= post.activity %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <span class="comment-logo-container"  data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(post) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                        <img src="./assets/icons/COMMENT.png" alt="profile-image">
+                                        <span>
+                                            <%= post.total_comments_and_replies%>
+                                        </span>
+
+                                </span>
+                                  
+
+                                <!-- modal -->
+
+                            </li>
+
+                            <% }) %>
+                            <% } else { %>
+                                <span class="no-posts">No completed activity yet.</span>
+                                <% }%>
+                                <%} %>
+
+
+                </ul>
+                </div>    
+                <% } else {%>
+                    <!-- Explore Page -->
+                    <ul class="post-container show-history">
+                        <% if (locals.ongoingPosts) {%>
+                            <% if (ongoingPosts.length > 0) {%>
+                            <% ongoingPosts.forEach((post)=> { %>
+                                <li class="post-item" onclick="openPostPage(<%- post.post_id %>)">
+                                    
+                                    <div class="post-content">
+                                        <a onclick="openUser(<%- post.post_owner_id %>, event)"> <img src=<% if (post.image_path) {%>
+                                            <%= post.image_path %>
+                                                <% } else { %>
+                                                    <%= "./assets/images/profile-placeholder.jpg" %>
+                                                        <% } %> alt="profile-image">
+                                        </a>
+    
+    
+                                        <div>
+                                            <div class="post-header">
+                                                <span>
+                                                    <a onclick="openUser(<%- post.post_owner_id %>, event)">
+                                                        <h1>
+                                                            <%= post.display_name %>
+                                                        </h1>
+    
+                                                    </a>
+    
+                                                    <p class="time-of-post" data-timestamp="<%= post.created_at %>"> </p>
+                                                </span>
+    
+                                                <div class="dropdown-container">
+                                                    <button class="dropdown-button">⋮</button>
+                                                    <div class="dropdown-menu">
+                                                        <a href="/user-profile/<%= post.post_owner_id %>">
+                                                        <div class="dropdown-item">View</div>
+                                                        </a>
+                                                        <% if (userId ==post.post_owner_id) {%>                                                     
+                                                                <form action="/complete-activity" method="POST">
+    
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item follow">Complete</button>
+                                                                   
+                                                                </form>
+                                                            <% } %>
+                                                        <% if (userId !==post.post_owner_id) {%>
+                                                            <% if (post.relationship_type !== null) { %>
+                                                                <form action="/unfollow" method="POST">
+    
+                                                                    <input type="hidden" name="postOwnerId"
+                                                                        value=<%=post.post_owner_id %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item unfollow">Unfollow</button>
+                                                                   
+                                                                </form>
+                                                                <% } else {%>
+                                                                    <form action="/follow" method="POST">
+                                                                        <input type="hidden" name="postOwnerId"
+                                                                            value=<%=post.post_owner_id  %>>
+                                                                        <button type="submit"
+                                                                            class="dropdown-item follow">follow</button>
+                                                                    </form>
+                                                                    <% } %>
+                                                
+                                                            <% } %>
+                                                            <% if (!post.bookmark) { %>    
+                                                                <form action="/add-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                <% } else { %>    
+                                                                <form action="/remove-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Remove Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                    <% } %>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p class="post-mesage">
+                                                <%= post.activity %>
+                                            </p>
+                                        </div>
+                                    </div>
+    
+                                    <span class="comment-logo-container" data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(post) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                        <img src="./assets/icons/COMMENT.png" alt="profile-image" >
+                                        <span>
+                                            <%= post.total_comments_and_replies%>
+                                        </span>
+
+                                </span>
+
+                                    <!-- modal -->
+    
+    
+                                </li>
+    
+                                <% }) %>
+                                <% } else { %>
+                                    <span class="no-posts">No ongoing activities to explore.</span>
+                                    <% }%>
+                                    <%} %>
+                                        
+    
+    
+                    </ul>
+                    <% } %>
+
+                <div class="modal-overlay">
+                        <modal class=".modal-box">
+                            <div class="modal-header">
+                                <button class="cancel-reply">Cancel</button>
+                                <span>Reply</span>
+                            </div>
+                
+                            <div class="modal-post">
+                                <div id="post-profile" class="image-wrapper">
+                
+                                    <!-- postprofile -->
+                                </div>
+                
+                                <div id="post-popup" class="modal-content">
+                                   <!-- modal content -->
+                                </div>
+                            </div>
+                
+                            <div class="modal-reply">
+                                <div id="reply-profile" class="image-wrapper">
+                                  <!-- userprofile -->
+                                </div>
+                
+                                <div id="reply-popup" class="modal-content">
+                                    <!-- modl content -->
+                                </div>
+                            </div>
+                        </modal>
+                </div>
+                
+            </div>
+
+        
+
+        </div>
+
+    </section>
+
+    <script>
+        // time of post
+        document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".time-of-post").forEach((element) => {
+        const timestamp = element.getAttribute("data-timestamp");
+        if (timestamp) {
+            element.textContent = convertTime(timestamp);
+        }
+        });
+        });
+
+        function convertTime(timestamp) {
+            const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+            if (seconds < 60) return `${seconds} secs ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} mins ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hrs ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} days ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months} months ago`;
+            const years = Math.floor(months / 12);
+            return `${years} years ago`;
+        }
+     
+        // Dropdown menu
+
+        const dropdownButton = document.querySelectorAll(".dropdown-button");
+        const dropdownMenu = document.querySelectorAll(".dropdown-menu");
+
+        dropdownButton.forEach((button, index) => {
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
+                console.log("clicked");
+                console.log(index);
+
+                if (dropdownMenu[index].classList.contains("show")) {
+                    dropdownMenu[index].classList.remove("show");
+                    setTimeout(() => {
+                        dropdownMenu[index].style.display = "none";
+                    }, 300);
+                } else {
+                    dropdownMenu[index].style.display = "flex";
+                    setTimeout(() => {
+                        dropdownMenu[index].classList.add("show");
+                    }, 10); // Small delay to allow display: flex to take effect
+                }
+            });
+        });
+
+
+
+        document.addEventListener("click", (event) => {
+
+            if (!event.target.closest(".dropdown-container")) {
+                dropdownMenu.forEach((menu) => {
+                    if (menu.classList.contains("show")) {
+                        menu.classList.remove("show");
+                        setTimeout(() => {
+                            menu.style.display = "none";
+                        }, 300); // Matches the transition duration
+                    }
+                })
+
+            }
+        });
+
+        // modal
+        const activityModalBtn = document.querySelector(".activity-modal-btn");
+        const activityModal = document.querySelector(".activity-modal");
+        const cancelActivityBtn = document.querySelector(".cancel-activity");
+
+        if (activityModalBtn) {
+            activityModalBtn.addEventListener("click", () => {
+            activityModal.classList.add("show-modal");
+        })
+
+        cancelActivityBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                activityModal.classList.remove("show-modal"); 
+            })
+
+        activityModal.addEventListener("click", (event) => {
+            event.stopPropagation();
+            event.target.classList.remove("show-modal");
+        })
+        }
+
+        const replyModal = document.querySelector(".modal-overlay");
+        const replyBtns = document.querySelectorAll(".comment-logo-container");
+        const cancelReplyBtn = document.querySelector(".cancel-reply");
+        const replyInput = document.querySelectorAll(".reply-input");
+
+        replyBtns.forEach((button) => {
+        button.addEventListener("click", function (event) {
+        event.stopPropagation();
+
+        const replyBtn = event.target.closest(".comment-logo-container");
+        const userAvatar = replyBtn.getAttribute("data-userAvatar");
+        const post = JSON.parse(replyBtn.getAttribute("data-post"));
+        const userId = replyBtn.getAttribute("data-userId");
+        const user = JSON.parse(replyBtn.getAttribute("data-user"));
+        const postProfile = document.querySelector("#post-profile");
+        const replyProfile = document.querySelector("#reply-profile");
+        const postPopup = document.querySelector("#post-popup");
+        const replyPopup = document.querySelector("#reply-popup");
+
+        const postImageSrc = post.image_path ? post.image_path :  "./assets/images/profile-placeholder.jpg";
+        const replyImageSrc = userAvatar ? userAvatar :  "./assets/images/profile-placeholder.jpg";
+
+        postProfile.innerHTML=`
+                               <a href="/user-profile/${post.post_owner_id}"> 
+                                 <img src="${postImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        replyProfile.innerHTML=`
+                               <a href="/user-profile/${user.id}"> 
+                                 <img src="${replyImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        postPopup.innerHTML=`
+                                 <h1>${post.display_name}</h1>
+                                 <p>${post.activity}</p>
+                               `
+        replyPopup.innerHTML=`
+                                <h1>${user.display_name}</h1>
+                                <form action="/submit-reply" method="POST">
+                                 <input type="text" name="comment" id="comment-input" placeholder="Replying to ${post.display_name}" class="reply-input" required>
+                                 <input type="hidden" name="post-id" value=${post.post_id}>
+                                 <button type="submit">Post</button>
+                                </form>
+                               `
+
+
+        replyModal.classList.add("show-modal");
+        return;
+        
+        });
+        });
+      
+        
+        document.addEventListener("click", function(event) {
+        if (event.target === replyModal) {
+        replyModal.classList.remove("show-modal");
+        return;
+        }
+        if (event.target.classList.contains("cancel-reply")) {
+             replyModal.classList.remove("show-modal"); 
+             return
+        }
+        });
+        // activity history
+
+        const historyBtn = document.querySelectorAll(".history-btn");
+        const postContainer = document.querySelectorAll(".post-container");
+        const completedHistory = document.querySelector(".completed-history");
+        const ongoingHistory = document.querySelector(".ongoing-history");
+
+        historyBtn.forEach((button, index) => {
+            button.addEventListener("click", (event) => {
+                // console.log("clicked");
+                
+                if (!historyBtn[index].classList.contains("active")) {
+                    historyBtn.forEach((button) => {
+                        button.classList.remove("active");
+                    })
+                    historyBtn[index].classList.add("active");
+
+                    postContainer.forEach((history) => {
+                        history.classList.remove("show-history");
+                        history.style.display = "none";
+                    })
+                    ongoingHistory.style.transform = "translateX(-100%)"
+                    completedHistory.style.transform = "translateX(100%)"
+
+
+                    postContainer[index].style.display = "flex";
+
+
+                    setTimeout(() => {
+                        postContainer[index].classList.add("show-history");
+                        postContainer[index].style.transform = "translateX(0)";
+                    }, 10);
+                }
+
+            });
+        });
+
+
+        // control event propagation
+
+     const posts = document.querySelectorAll(".post-item");
+
+       function openPostPage(postId) {
+        window.location.href = `/post/${postId}`;
+       }
+       function openUser(userId) {
+        event.stopPropagation();
+        window.location.href = `/user-profile/${userId}`;
+       }
+
+    </script>
+
+    <%- include('partials/footer') %>

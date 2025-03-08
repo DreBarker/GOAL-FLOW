@@ -1,0 +1,75 @@
+<%- include('partials/header') %>
+
+
+    <section class="search-page">
+        <%- include('partials/sidebar') %>
+
+            <div>
+                <% if (locals.pageLabel) { %>
+                    <form>
+                        <label for="activities" class="active">
+                            <%= pageLabel %>
+                        </label>
+                        <input type="submit" name="selection" value="activity" id="activities" hidden>
+                    </form>
+                    <% } %>
+
+
+
+                        <div class="threads-container">
+                            <div class="search-container">
+
+                                <input type="text" name="user" placeholder="search user" id="search-user">
+
+                                <ul class="post-container">
+
+
+
+                                </ul>
+                            </div>
+                        </div>
+
+            </div>
+    </section>
+
+    <script>
+        const resultContainer = document.querySelector(".post-container");
+        const searchInput = document.querySelector("#search-user");
+        const allUsers = <%- JSON.stringify(allUsers) %>;
+        const userId = <%- userId %>;
+
+        searchInput.focus();
+
+        searchInput.addEventListener("input", (event) => {
+            const inputValue = event.target.value.toLowerCase();
+            const suggestedUsers = allUsers.filter((user) => {
+                return (
+                    user.display_name?.toLowerCase().includes(inputValue) ||
+                    user.email?.toLowerCase().includes(inputValue)
+                )
+            })
+
+            resultContainer.innerHTML = suggestedUsers.map((user) => {
+                return (` 
+                <li onclick="window.location.href='/user-profile/${user.user_id}'">
+                    <div class="info-container">  
+                        <img src="${user.image_path || './assets/images/profile-placeholder.jpg'}" alt="user-image">
+
+                            <span>
+                                <h1>${user.display_name}</h1>
+                                <P>${user.description ? user.description : ''}</P>
+                            </span>
+                    </div>
+
+                    ${userId !== user.user_id ? user.relationship_type == null ? '' :  '<p>following</p>' : ''}
+                 
+                </li>
+                `
+                )
+            }).join("");
+
+        })
+
+    </script>
+
+    <%- include('partials/footer') %>

@@ -1,0 +1,43 @@
+<%- include('partials/header') %>
+
+    <div class="content">
+        <div class="hero-wrapper">
+            <div class="hero-image-container">
+                <header>
+                    <img src="./assets/icons/GOAL-FLOW.png" alt="goal-flow-logo">
+                </header>
+                <img class="register-page-hero" src="./assets/images/REGISTER-PAGE-HERO.png" alt="register-page-hero-image">
+            </div>
+
+            <div class="form-container">
+                <span class="error-login <% if (errorMessage.length > 0) { %>
+                    show
+                <% } %>">
+        
+                <% if (errorMessage.length > 0) { %>
+                    <%= errorMessage %>
+                    <% } %>
+                </span>
+                <form action="/register" method="POST">
+                    <div class="google-btn">
+                        <a href="#">
+                            <img src="./assets/icons/Google__G__logo.svg.png" alt="google-logo">
+                            <p>Sign Up with Google</p>
+                        </a>
+                    </div>
+
+                    <img src="./assets/icons/OR.png" alt="">
+
+                    <input type="email" class="form-control" name="username" placeholder="email"  required>
+
+                    <input type="password" class="form-control" name="password" placeholder="password"  required>
+
+                    <button type="submit">Sign Up</button>
+
+                    <p>Already have an account? <a href="/login">Sign In</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/footer') %>

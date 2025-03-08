@@ -1,0 +1,408 @@
+<%- include('partials/header') %>
+
+
+    <section class="post-page">
+        <%- include('partials/sidebar') %>
+
+        <div>
+
+            <div class="post-page-nav">
+                <button>
+                    <img src="./assets/icons/ARROW-BACK.png" alt="">
+                </button>
+
+                <span>Activity</span>
+
+            </div>
+
+
+            <div class="threads-container">
+
+                <ul class="post-container">
+                    <% if (locals.comment) {%>
+
+                        <li>
+                            <div class="post-content">
+                                <img src=<% if (comment.image_path) {%>
+                                <%= comment.image_path %>
+                                    <% } else { %>
+                                        <%= "./assets/images/profile-placeholder.jpg" %>
+                                            <% } %> alt="profile-image">
+                                                <div>
+                                                    <div class="post-header">
+                                                        <span>
+                                                            <h1>
+                                                                <%= comment.display_name %>
+                                                            </h1>
+                                                            <p class="time-of-post" data-timestamp="<%= comment.created_at %>"> </p>
+                                                        </span>
+
+                                                        <div class="dropdown-container">
+                                                            <button class="preview-dropdown">⋮</button>
+                                                            <div class="preview-dropdown-menu">
+                                                                <a href="/user-profile/<%= comment.comment_owner_id %>">
+                                                                    <div class="dropdown-item">View</div>
+                                                                </a>
+                                                                <% if (userId !== comment.comment_owner_id) {%>
+                                                                    <form action="/unfollow" method="POST">
+                                                                        <input type="hidden" name="postOwnerId"
+                                                                            value=<%=comment.comment_owner_id %>>
+                                                                        <button type="submit"
+                                                                            class="dropdown-item unfollow">Unfollow</button>
+                                                                        <!-- <button type="submit"
+                                                                                class="dropdown-item follow">follow</button> -->
+                                                                    </form>
+                                                                    <% } %>
+                                                             
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p class="post-mesage">
+                                                        <%= comment.message %>
+                                                    </p>
+                                                </div>
+                            </div>
+
+
+                            <span class="comment-logo-container" data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(comment) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                <img src="./assets/icons/COMMENT.png" alt="profile-image" >
+                                <span>
+                                    <%= sumOfReplies %>
+                                </span>
+
+                            </span>
+
+                        </li>
+
+                        <%}%>
+
+                </ul>
+
+                <div class="comment-header">
+                    <p>Replies</p>
+                </div>
+
+                <ul class="post-container">
+                    <% if (locals.replies) {%>
+                        <% replies.forEach((reply)=> { %>
+                            <li onclick="openReplyPage(<%- reply.reply_id %>)">
+                                <div class="post-content">
+                                    <img onclick="openUser(<%- reply.replier_id %>)" src=<% if (reply.image_path) {%>
+                                    <%= reply.image_path %>
+                                        <% } else { %>
+                                            <%= "./assets/images/profile-placeholder.jpg" %>
+                                                <% } %> alt="profile-image">
+                                                    <div>
+                                                        <div class="post-header">
+                                                            <span onclick="openUser(<%- reply.replier_id %>)">
+                                                                <h1>
+                                                                    <%= reply.display_name %>
+                                                                </h1>
+                                                                <p class="time-of-post" data-timestamp="<%= reply.created_at %>"> </p>
+                                                            </span>
+
+                                                            <div class="dropdown-container">
+                                                                <button class="dropdown-button">⋮</button>
+                                                                <div class="dropdown-menu">
+                                                                    <a href="/user-profile/<%= reply.replier_id %>">
+                                                                        <div class="dropdown-item">View</div>
+                                                                    </a>
+                                                                    <% if (reply.replier_id !==userId) {%>
+                                                                        <% if (reply.relationship_type !==null) {%>
+                                                                            <form action="/unfollow" method="POST">
+                                                                                <input type="hidden" name="postOwnerId"
+                                                                                    value=<%=reply.replier_id %>>
+                                                                                <button type="submit"
+                                                                                    class="dropdown-item unfollow">Unfollow</button>
+
+                                                                            </form>
+                                                                            <% } else {%>
+                                                                                <form action="/follow" method="POST">
+                                                                                    <input type="hidden"
+                                                                                        name="postOwnerId"
+                                                                                        value=<%=reply.replier_id
+                                                                                        %>>
+                                                                                    <button type="submit"
+                                                                                        class="dropdown-item follow">follow</button>
+                                                                                </form>
+                                                                                <% } %>
+
+                                                                                    <% } %>
+                                                                                        
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <p class="post-mesage">
+                                                            <%= reply.message %>
+                                                        </p>
+                                                    </div>
+                                </div>
+
+                                <span id="for-comments" class="comment-logo-container" data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(reply) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                    <img src="./assets/icons/COMMENT.png" alt="profile-image" >
+                                    <span>
+                                        <span><%= reply.total_nested_replies %></span>
+                                    </span>
+    
+                                </span>
+
+                            </li>
+                            <% }) %>
+                                <%}%>
+
+
+                </ul>
+
+                
+                <div class="modal-overlay">
+                    <modal class=".modal-box">
+                        <div class="modal-header">
+                            <button class="cancel-reply">Cancel</button>
+                            <span>Reply</span>
+                        </div>
+            
+                        <div class="modal-post">
+                            <div id="post-profile" class="image-wrapper">
+            
+                                <!-- postprofile -->
+                            </div>
+            
+                            <div id="post-popup" class="modal-content">
+                               <!-- modal content -->
+                            </div>
+                        </div>
+            
+                        <div class="modal-reply">
+                            <div id="reply-profile" class="image-wrapper">
+                              <!-- userprofile -->
+                            </div>
+            
+                            <div id="reply-popup" class="modal-content">
+                                <!-- modl content -->
+                            </div>
+                        </div>
+                    </modal>
+            </div>
+
+
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+
+                // time of post
+        document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".time-of-post").forEach((element) => {
+        const timestamp = element.getAttribute("data-timestamp");
+        if (timestamp) {
+            element.textContent = convertTime(timestamp);
+        }
+        });
+        });
+
+        function convertTime(timestamp) {
+            const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+            if (seconds < 60) return `${seconds} secs ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} mins ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hrs ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} days ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months} months ago`;
+            const years = Math.floor(months / 12);
+            return `${years} years ago`;
+        }
+     
+        // Dropdown menu
+
+const previewDropdownButton = document.querySelector(".preview-dropdown");
+        const previewDropdownMenu = document.querySelector(".preview-dropdown-menu");
+
+        previewDropdownButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                if (previewDropdownMenu.classList.contains("show")) {
+                    previewDropdownMenu.classList.remove("show");
+                    setTimeout(() => {
+                        previewDropdownMenu.style.display = "none";
+                    }, 300);
+                } else {
+                    previewDropdownMenu.style.display = "flex";
+                    setTimeout(() => {
+                        previewDropdownMenu.classList.add("show");
+                    }, 10); // Small delay to allow display: flex to take effect
+                }
+            });
+
+        const dropdownButton = document.querySelectorAll(".dropdown-button");
+        const dropdownMenu = document.querySelectorAll(".dropdown-menu");
+       
+
+        dropdownButton.forEach((button, index) => {
+            button.addEventListener("click", (event) => {
+                event.stopPropagation();
+                console.log("clicked");
+                console.log(index);
+
+                if (dropdownMenu[index].classList.contains("show")) {
+                    dropdownMenu[index].classList.remove("show");
+                    setTimeout(() => {
+                        dropdownMenu[index].style.display = "none";
+                    }, 300);
+                } else {
+                    dropdownMenu[index].style.display = "flex";
+                    setTimeout(() => {
+                        dropdownMenu[index].classList.add("show");
+                    }, 10); // Small delay to allow display: flex to take effect
+                }
+            });
+        });
+
+
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".dropdown-container")) {
+             previewDropdownMenu.classList.contains("show") && previewDropdownMenu.classList.remove("show")
+                dropdownMenu.forEach((menu) => {
+                    if (menu.classList.contains("show")) {
+                        menu.classList.remove("show");
+                        setTimeout(() => {
+                            menu.style.display = "none";
+                        }, 300); // Matches the transition duration
+                    }
+                })
+
+            }
+        });
+
+
+        
+                // modal
+
+        const replyModal = document.querySelector(".modal-overlay");
+        const replyBtns = document.querySelectorAll(".comment-logo-container");
+        const cancelReplyBtn = document.querySelector(".cancel-reply");
+        const replyInput = document.querySelectorAll(".reply-input");
+
+        replyBtns.forEach((button) => {
+        button.addEventListener("click", function (event) {
+        if (!event.target.closest("#for-comments")) {
+        event.stopPropagation();
+
+        const replyBtn = event.target.closest(".comment-logo-container");
+        const userAvatar = replyBtn.getAttribute("data-userAvatar");
+        const post = JSON.parse(replyBtn.getAttribute("data-post"));
+        const userId = replyBtn.getAttribute("data-userId");
+        const user = JSON.parse(replyBtn.getAttribute("data-user"));
+        const postProfile = document.querySelector("#post-profile");
+        const replyProfile = document.querySelector("#reply-profile");
+        const postPopup = document.querySelector("#post-popup");
+        const replyPopup = document.querySelector("#reply-popup");
+        console.log(post);
+        
+
+        const postImageSrc = post.image_path ? post.image_path :  "./assets/images/profile-placeholder.jpg";
+        const replyImageSrc = userAvatar ? userAvatar :  "./assets/images/profile-placeholder.jpg";
+
+        postProfile.innerHTML=`
+                               <a href="/user-profile/${post.comment_owner_id}"> 
+                                 <img src="${postImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        replyProfile.innerHTML=`
+                               <a href="/user-profile/${user.id}"> 
+                                 <img src="${replyImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        postPopup.innerHTML=`
+                                 <h1>${post.display_name}</h1>
+                                 <p>${post.message}</p>
+                               `
+        replyPopup.innerHTML=`
+                                <h1>${user.display_name}</h1>
+                                <form action="/submit-reply" method="POST">
+                                 <input type="text" name="reply-to-comment" id="comment-input" placeholder="Replying to ${post.display_name}" class="reply-input" required>
+                                 <input type="hidden" name="post-id" value=${post.comment_id}>
+                                 <button type="submit">Post</button>
+                                </form>
+                               `
+
+
+        replyModal.classList.add("show-modal");
+        return;
+        } else {
+            event.stopPropagation();
+            
+            const replyBtn = event.target.closest(".comment-logo-container");
+            const userAvatar = replyBtn.getAttribute("data-userAvatar");
+            const post = JSON.parse(replyBtn.getAttribute("data-post"));
+            const userId = replyBtn.getAttribute("data-userId");
+            const user = JSON.parse(replyBtn.getAttribute("data-user"));
+            const postProfile = document.querySelector("#post-profile");
+            const replyProfile = document.querySelector("#reply-profile");
+            const postPopup = document.querySelector("#post-popup");
+            const replyPopup = document.querySelector("#reply-popup");
+            
+            const postImageSrc = post.image_path ? post.image_path :  "./assets/images/profile-placeholder.jpg";
+            const replyImageSrc = userAvatar ? userAvatar :  "./assets/images/profile-placeholder.jpg";
+            
+            postProfile.innerHTML=`
+                                   <a href="/user-profile/${post.replier_id}"> 
+                                     <img src="${postImageSrc}" alt="profile-image">
+                                   </a>
+                                  `;
+            replyProfile.innerHTML=`
+                                   <a href="/user-profile/${user.id}"> 
+                                     <img src="${replyImageSrc}" alt="profile-image">
+                                   </a>
+                                  `;
+            postPopup.innerHTML=`
+                                     <h1>${post.display_name}</h1>
+                                     <p>${post.message}</p>
+                                   `
+            replyPopup.innerHTML=`
+                                    <h1>${user.display_name}</h1>
+                                    <form action="/submit-reply" method="POST">
+                                     <input type="text" name="child-reply" id="comment-input" placeholder="Replying to ${post.display_name}" class="reply-input" required>
+                                     <input type="hidden" name="post-id" value=${post.reply_id}>
+                                     <button type="submit">Post</button>
+                                    </form>
+                                   `
+            
+            
+            replyModal.classList.add("show-modal");
+            return;
+        }
+        });
+        });
+
+        document.addEventListener("click", function(event) {
+        if (event.target === replyModal) {
+        replyModal.classList.remove("show-modal");
+        return;
+        }
+        if (event.target.classList.contains("cancel-reply")) {
+             replyModal.classList.remove("show-modal"); 
+             return
+        }
+        });
+
+
+                // control event propagation
+
+     const posts = document.querySelectorAll(".post-item");
+
+    function openReplyPage(replyId) {
+    window.location.href = `/reply/${replyId}`;
+    }
+    function openUser(userId) {
+     event.stopPropagation();
+     window.location.href = `/user-profile/${userId}`;
+    }
+
+    </script>
+
+    <%- include('partials/footer') %>

@@ -1,0 +1,181 @@
+<%- include('partials/header') %>
+
+
+    <section class="home-page">
+        <%- include('partials/sidebar') %>
+
+        <div>
+
+            <form>
+                <label for="activities" class="active">Bookmarks</label>
+                <input type="submit" name="selection" value="activity" id="activities" hidden>
+            </form>
+
+
+            <div class="threads-container">
+
+                <ul class="post-container show-history">
+                    <% if (locals.bookmarks) {%>
+                        <% bookmarks.forEach((bookmark)=> { %>
+                            <li onclick="window.location.href='/post/<%=bookmark.bookmarked_post_id%>'">
+                                <div class="post-content">
+                                    <a href="#"> <img src=<% if (bookmark.image_path) {%>
+                                        <%= bookmark.image_path %>
+                                            <% } else { %>
+                                                <%= "./assets/images/profile-placeholder.jpg" %>
+                                                    <% } %> alt="profile-image">
+                                    </a>
+
+
+                                    <div>
+                                        <div class="post-header">
+                                            <span>
+                                                <a href="#">
+                                                    <h1>
+                                                        <%= bookmark.display_name %>
+                                                    </h1>
+
+                                                </a>
+
+                                                <p class="time-of-post" data-timestamp="<%= bookmark.created_at %>"> </p>
+                                            </span>
+
+                                            <div class="dropdown-container">
+                                                <button class="dropdown-button">⋮</button>
+                                                <div class="dropdown-menu">
+                                                    <div class="dropdown-item">View</div>
+                                                    <% if (bookmark.user_id !==bookmark.post_owner_id) {%>
+                                                        <% if (bookmark.relationship_type !==null) {%>
+                                                            <form action="/unfollow" method="POST">
+                                                                <input type="hidden" name="postOwnerId"
+                                                                    value=<%=bookmark.post_owner_id %>>
+                                                                <button type="submit"
+                                                                    class="dropdown-item unfollow">Unfollow</button>
+
+                                                            </form>
+                                                            <% } else {%>
+                                                                <form action="/follow" method="POST">
+                                                                    <input type="hidden" name="postOwnerId"
+                                                                        value=<%=bookmark.post_owner_id %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item follow">follow</button>
+                                                                </form>
+                                                                <% } %>
+                                                                    <% } %>
+                                                                        <form action="/remove-bookmark" method="POST">
+                                                                            <input type="hidden" name="bookmark-id"
+                                                                                value=<%=bookmark.bookmark_id %>>
+                                                                            <button class="dropdown-item bookmark-text">Remove Bookmark
+                                                                            </button>
+                                                                        </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <p class="post-mesage <% if(bookmark.is_active == false) { %>
+                                            completed
+                                            <% } else {%>
+                                                null
+                                                <% } %>">
+                                            <%= bookmark.activity %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <span class="comment-logo-container">
+                                    <a href="#">
+                                        <img src="./assets/icons/COMMENT.png" alt="profile-image">
+                                        <span>
+                                            <%= bookmark.total_comments_and_replies%>
+                                        </span>
+                                    </a>
+
+                                </span>
+
+                            </li>
+
+                            <% }) %>
+                            <%} else {%>
+                                <% if (locals.noBookmarks) { %>
+                                    <span class="no-posts"><%= noBookmarks %></span>
+                                    <% } %>
+                                <% } %>
+
+
+                </ul>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+
+                // time of post
+                document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".time-of-post").forEach((element) => {
+        const timestamp = element.getAttribute("data-timestamp");
+        if (timestamp) {
+            element.textContent = convertTime(timestamp);
+        }
+        });
+        });
+
+        function convertTime(timestamp) {
+            const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+            if (seconds < 60) return `${seconds} secs ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} mins ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hrs ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} days ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months} months ago`;
+            const years = Math.floor(months / 12);
+            return `${years} years ago`;
+        }
+     
+        // Dropdown menu
+
+
+        const dropdownButton = document.querySelectorAll(".dropdown-button");
+        const dropdownMenu = document.querySelectorAll(".dropdown-menu");
+
+        dropdownButton.forEach((button, index) => {
+            button.addEventListener("click", () => {
+                event.stopPropagation();
+                console.log("clicked");
+                console.log(index);
+
+                if (dropdownMenu[index].classList.contains("show")) {
+                    dropdownMenu[index].classList.remove("show");
+                    setTimeout(() => {
+                        dropdownMenu[index].style.display = "none";
+                    }, 300);
+                } else {
+                    dropdownMenu[index].style.display = "flex";
+                    setTimeout(() => {
+                        dropdownMenu[index].classList.add("show");
+                    }, 10); // Small delay to allow display: flex to take effect
+                }
+            });
+        });
+
+
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".dropdown-container")) {
+                dropdownMenu.forEach((menu) => {
+                    if (menu.classList.contains("show")) {
+                        menu.classList.remove("show");
+                        setTimeout(() => {
+                            menu.style.display = "none";
+                        }, 300); // Matches the transition duration
+                    }
+                })
+
+            }
+        });
+
+    </script>
+
+    <%- include('partials/footer') %>

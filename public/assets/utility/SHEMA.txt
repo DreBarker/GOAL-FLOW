@@ -1,0 +1,42 @@
+Combined table of both following posts and user posts
+
+SELECT posts.id AS post_id, posts.activity, posts.created_at, posts.is_active, posts.user_id AS post_owner_id, u_r.user_id AS user_id, u_r.related_user_id, u_r.relationship_type, users.display_name, users.profile_picture, users.avatar, avatars.image_path 
+FROM posts 
+JOIN user_relationships AS u_r 
+ON posts.user_id = u_r.related_user_id 
+JOIN users 
+ON users.id = posts.user_id 
+LEFT JOIN avatars 
+ON users.avatar = avatars.avatar_name 
+WHERE u_r.user_id = $1 
+
+UNION 
+
+SELECT posts.id AS post_id, posts.activity, posts.created_at, posts.is_active, posts.user_id AS post_owner_id, MAX(u_r.user_id) AS user_id, MAX(u_r.related_user_id) AS related_user_id, MAX(u_r.relationship_type) AS relationship_type, users.display_name, users.profile_picture, users.avatar, avatars.image_path FROM posts JOIN user_relationships AS u_r ON posts.user_id = u_r.related_user_id JOIN users ON users.id = posts.user_id LEFT JOIN avatars ON users.avatar = avatars.avatar_name WHERE posts.user_id = $1 GROUP BY posts.id, posts.activity, posts.created_at, posts.is_active, posts.user_id, users.display_name, users.profile_picture, users.avatar, avatars.image_path
+
+
+
+get comments
+
+SELECT 
+    comments.id AS comment_id, 
+    comments.post_id, 
+    comments.message AS comment, 
+    comments.user_id AS commenter_id, 
+    users.profile_picture, 
+    users.display_name, 
+    users.avatar, 
+    avatars.avatar_name, 
+    avatars.image_path, 
+    u_r.relationship_type -- Include the relationship type
+FROM 
+    comments
+JOIN 
+    users ON comments.user_id = users.id
+LEFT JOIN 
+    avatars ON avatars.avatar_name = users.avatar
+LEFT JOIN 
+    user_relationships AS u_r 
+    ON u_r.user_id = 27 AND comments.user_id = u_r.related_user_id
+WHERE 
+    comments.post_id = 10;

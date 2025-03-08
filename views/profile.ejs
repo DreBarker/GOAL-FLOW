@@ -1,0 +1,711 @@
+<%- include('partials/header') %>
+
+
+    <section class="profile-page">
+        <%- include('partials/sidebar') %>
+
+        <div>
+
+            <form>
+                <label for="activities" class="active">Profile</label>
+                <input type="submit" name="selection" value="activity" id="activities" hidden>
+            </form>
+
+
+            <div class="profile-container">
+                <div class="profile-wrapper">
+                    <div class="profile-image-container">
+
+                        <div class="profile-picture">
+                            <img id="preview" src=<% if (details.image_path) { %>
+                            <%= details.image_path %>
+                                <% } else {%>
+                                    <%= "./assets/images/profile-placeholder.jpg" %>
+                                        <% } %>
+                                            alt="profile-picture">
+                        </div>
+
+                        <label for="file-upload" class="camera-btn hide">
+                            <!-- <img src="./assets/icons/Camera.png" alt="camera-icon"> -->
+                        </label>
+                        <input type="file" id="file-upload" accept="image/*" name="profile-picture" hidden>
+
+                    </div>
+
+                    <div class="relationship-details">
+                        <span><%= relationshipDetails.followersCount %> Followers</span>
+                        <span><%= relationshipDetails.followingCount %> Following</span>
+                    </div>
+
+
+                    <% if (details.id == userId) {%>
+                        <button class="edit-profile">Edit</button>
+                        <% } else { %>
+                             <!-- <button class="follow-profile">Follow</button> -->
+                             <% if (details.relationship_type !==null) {%>
+                                <form action="/unfollow" method="POST">
+                                    <input type="hidden" name="postOwnerId"
+                                        value=<%=details.id %>>
+                                    <button type="submit"
+                                        class="dropdown-item follow-profile">Unfollow</button>
+
+                                </form>
+                                <% } else {%>
+                                    <form action="/follow" method="POST">
+                                        <input type="hidden" name="postOwnerId"
+                                            value=<%=details.id %>>
+                                        <button type="submit"
+                                            class="dropdown-item follow-profile">follow</button>
+                                    </form>
+                                    <% } %>
+                            <% } %>         
+
+                    <form action="/save-profile" method="POST">
+
+                        <label for="display-name" class="display-name" focus>
+                            <%= details.display_name %>
+                        </label>
+                        <input type="text" value="<%=details.display_name %>" name="display-name" id="display-name"
+                        placeholder="add a displayname" class="display-name-input hide">
+                        
+                    
+                            <label for="description" class="description <% if (!details.description) { %>
+                                hide
+                                <% } %>">
+                                <%= details.description %>
+                            </label>
+                       
+
+                        <input type="text" value="<%= details.description %>" name="description" id="description"
+                        placeholder="briefly describe yourself" class="description-input hide">
+
+                        <span class="profile-email">
+                            <%= details.email %>
+                        </span>
+
+                        <div class="carousel-container hide">
+                            <h1>Use Avatar</h1>
+                            <div class="carousel">
+                                <div class="carousel-btn prev">&#8249;</div>
+                                <div class="carousel-track">
+                                    <label class="avatar" for="Bob">
+                                        <img src="./assets/Animoji/Bob.png" alt="Avatar 1">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Bob" id="Bob" hidden>
+
+                                    <label class="avatar" for="Sofia">
+                                        <img src="./assets/Animoji/Sofia.png" alt="Avatar 2">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Sofia" id="Sofia" hidden>
+
+                                    <label class="avatar" for="Eric">
+                                        <img src="./assets/Animoji/Eric.png" alt="Avatar 3">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Eric" id="Eric" hidden>
+
+                                    <label class="avatar" for="Luke">
+                                        <img src="./assets/Animoji/Luke.png" alt="Avatar 4">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Luke" id="Luke" hidden>
+
+                                    <label class="avatar" for="Annette">
+                                        <img src="./assets/Animoji/Annette.png" alt="Avatar 5">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Annette" id="Annette" hidden>
+
+                                    <label class="avatar" for="Aisha">
+                                        <img src="./assets/Animoji/Aisha.png" alt="Avatar 6" />
+                                    </label>
+                                    <input type="radio" name="avatar" value="Aisha" id="Aisha" hidden>
+
+                                    <label class="avatar" for="George">
+                                        <img src="./assets/Animoji/George.png" alt="Avatar 7">
+                                    </label>
+                                    <input type="radio" name="avatar" value="George" id="George" hidden>
+
+                                    <label class="avatar" for="Barbara">
+                                        <img src="./assets/Animoji/Barbara.png" alt="Avatar 8">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Barbara" id="Barbara" hidden>
+
+                                    <label class="avatar" for="Melly">
+                                        <img src="./assets/Animoji/Melly.png" alt="Avatar 9">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Melly" id="Melly" hidden>
+
+                                    <label class="avatar" for="Martin">
+                                        <img src="./assets/Animoji/Martin.png" alt="Avatar 10">
+                                    </label>
+                                    <input type="radio" name="avatar" value="Martin" id="Martin" hidden>
+
+                                </div>
+                                <div class="carousel-btn next">&#8250;</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="save-profile hide">Save</button>
+                        <span class="cancel-profile hide">Cancel</span>
+                    </form>
+
+                    <div class="profile-activities">
+                        <button class="history-btn active">Ongoing</button>
+                        <button class="history-btn">Completed</button>
+                    </div>
+
+                    <div class="activity-history">
+                        <ul class="ongoing-history post-container show-history">
+                            <% if (locals.ongoingPosts) {%>
+                                <% if (ongoingPosts.length > 0) {%>
+                                <% ongoingPosts.forEach((post)=> { %>
+                                    <li onclick="window.location.href='/post/<%=post.post_id%>'">
+                                        <div class="post-content">
+                                            <a href="#"> <img src=<% if (post.image_path) {%>
+                                                <%= post.image_path %>
+                                                    <% } else { %>
+                                                        <%= "./assets/images/profile-placeholder.jpg" %>
+                                                            <% } %> alt="profile-image">
+                                            </a>
+
+
+                                            <div>
+                                                <div class="post-header">
+                                                    <span>
+                                                        <a href="#">
+                                                            <h1>
+                                                                <%= post.display_name %>
+                                                            </h1>
+
+                                                        </a>
+
+                                                        <p class="time-of-post" data-timestamp="<%= post.created_at %>"> </p>
+                                                    </span>
+
+                                                    <div class="dropdown-container">
+                                                        <button class="dropdown-button">⋮</button>
+                                                        <div class="dropdown-menu">
+                                                            <% if (userId ==details.id) {%>                                                     
+                                                                <form action="/complete-activity" method="POST">
+    
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button type="submit"
+                                                                        class="dropdown-item follow">Complete</button>
+                                                                   
+                                                                </form>
+                                                            <% } %>
+                                                            
+                                                            <% if (!post.bookmark) { %>    
+                                                                <form action="/add-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                <% } else { %>    
+                                                                <form action="/remove-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Remove Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                    <% } %>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="post-mesage">
+                                                    <%= post.activity %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <span class="comment-logo-container"  data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(post) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                            <img src="./assets/icons/COMMENT.png" alt="profile-image">
+                                            <span>
+                                                <%= post.total_comments_and_replies%>
+                                            </span>
+    
+                                        </span>
+
+                                    </li>
+
+                                    <% }) %>
+                                    <% } else { %>
+                                        
+                                        <% if (details.id == userId) { %>
+                                            <span class="no-posts">Your ongoing activities will appear here.</span>
+                                            <% } else {%>
+                                                <span class="no-posts">No ongoing activities.</span>
+                                                <% } %>
+                                        <% }%>
+                                        <%}%>
+
+
+                        </ul>
+
+                        <ul class="completed-history post-container">
+                            <% if (locals.completedPosts) {%>
+                                <% if (completedPosts.length > 0) {%>
+                                <% completedPosts.forEach((post)=> { %>
+                                    <li onclick="window.location.href='/post/<%=post.post_id%>'">
+                                        <div class="post-content">
+                                            <a href="#"> <img src=<% if (post.image_path) {%>
+                                                <%= post.image_path %>
+                                                    <% } else { %>
+                                                        <%= "./assets/images/profile-placeholder.jpg" %>
+                                                            <% } %> alt="profile-image">
+                                            </a>
+
+
+                                            <div>
+                                                <div class="post-header">
+                                                    <span>
+                                                        <a href="#">
+                                                            <h1>
+                                                                <%= post.display_name %>
+                                                            </h1>
+
+                                                        </a>
+
+                                                        <p class="time-of-post" data-timestamp="<%= post.created_at %>"> </p>
+                                                    </span>
+
+                                                    <div class="dropdown-container">
+                                                        <button class="dropdown-button">⋮</button>
+                                                        <div class="dropdown-menu">
+
+                                                            <% if (!post.bookmark) { %>    
+                                                                <form action="/add-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                <% } else { %>    
+                                                                <form action="/remove-bookmark" method="POST">
+                                                                    <input type="hidden" name="post-id"
+                                                                        value=<%=post.post_id %>>
+                                                                    <button class="dropdown-item bookmark-text">
+                                                                                Remove Bookmark
+                                                                    </button>
+                                                                </form>
+                                                                    <% } %>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="post-message completed">
+                                                    <%= post.activity %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <span class="comment-logo-container"  data-userAvatar="<%= userAvatar %>" data-post="<%= JSON.stringify(post) %>" data-userId="<%= userId %>" data-user="<%= JSON.stringify(user) %>">            
+                                            <img src="./assets/icons/COMMENT.png" alt="profile-image">
+                                            <span>
+                                                <%= post.total_comments_and_replies%>
+                                            </span>
+    
+                                    </span>
+
+                                    </li>
+
+                                    <% }) %>
+                                    <% } else { %>
+                                        <% if (details.id == userId) { %>
+                                        <span class="no-posts">You have no completed activities so far.</span>
+                                        <% } else {%>
+                                            <span class="no-posts">No completed activities.</span>
+                                            <% } %>
+                                        <% }%>
+                                        <%}%>
+
+
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="modal-overlay">
+                    <modal class=".modal-box">
+                        <div class="modal-header">
+                            <button class="cancel-reply">Cancel</button>
+                            <span>Reply</span>
+                        </div>
+            
+                        <div class="modal-post">
+                            <div id="post-profile" class="image-wrapper">
+            
+                                <!-- postprofile -->
+                            </div>
+            
+                            <div id="post-popup" class="modal-content">
+                               <!-- modal content -->
+                            </div>
+                        </div>
+            
+                        <div class="modal-reply">
+                            <div id="reply-profile" class="image-wrapper">
+                              <!-- userprofile -->
+                            </div>
+            
+                            <div id="reply-popup" class="modal-content">
+                                <!-- modl content -->
+                            </div>
+                        </div>
+                    </modal>
+            </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+
+                // time of post
+        document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".time-of-post").forEach((element) => {
+        const timestamp = element.getAttribute("data-timestamp");
+        if (timestamp) {
+            element.textContent = convertTime(timestamp);
+        }
+        });
+        });
+
+        function convertTime(timestamp) {
+            const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
+            if (seconds < 60) return `${seconds} secs ago`;
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes} mins ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours} hrs ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 30) return `${days} days ago`;
+            const months = Math.floor(days / 30);
+            if (months < 12) return `${months} months ago`;
+            const years = Math.floor(months / 12);
+            return `${years} years ago`;
+        }
+     
+        // Dropdown menu
+
+
+        const dropdownButton = document.querySelectorAll(".dropdown-button");
+        const dropdownMenu = document.querySelectorAll(".dropdown-menu");
+
+        dropdownButton.forEach((button, index) => {
+            button.addEventListener("click", () => {
+                event.stopPropagation();
+                console.log("clicked");
+                console.log(index);
+
+                if (dropdownMenu[index].classList.contains("show")) {
+                    dropdownMenu[index].classList.remove("show");
+                    setTimeout(() => {
+                        dropdownMenu[index].style.display = "none";
+                    }, 300);
+                } else {
+                    dropdownMenu[index].style.display = "flex";
+                    setTimeout(() => {
+                        dropdownMenu[index].classList.add("show");
+                    }, 10); // Small delay to allow display: flex to take effect
+                }
+            });
+        });
+
+
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".dropdown-container")) {
+                dropdownMenu.forEach((menu) => {
+                    if (menu.classList.contains("show")) {
+                        menu.classList.remove("show");
+                        setTimeout(() => {
+                            menu.style.display = "none";
+                        }, 300); // Matches the transition duration
+                    }
+                })
+
+            }
+        });
+
+
+        // form
+
+        const editBtn = document.querySelector(".edit-profile");
+        const saveBtn = document.querySelector(".save-profile");
+        const cancelProfileBtn = document.querySelector(".cancel-profile");
+        const cameraBtn = document.querySelector(".camera-btn");
+        const displayNameInput = document.querySelector(".display-name-input");
+        const descriptionInput = document.querySelector(".description-input");
+        const displayName = document.querySelector(".display-name");
+        const description = document.querySelector(".description");
+        const carousel = document.querySelector(".carousel-container");
+        const profileEmail = document.querySelector(".profile-email");
+        const profileActivitiesLabel = document.querySelector(".profile-activities");
+        const activityHistory = document.querySelector(".activity-history");
+        const relationshipDetails = document.querySelector(".relationship-details");
+        
+        if (editBtn) {
+            editBtn.addEventListener("click", (event) => {
+            event.target.classList.add("hide");
+            displayName.classList.add("hide");
+            description.classList.add("hide");
+            profileEmail.classList.add("hide");
+            profileActivitiesLabel.classList.add("hide");
+            activityHistory.classList.add("hide");
+            relationshipDetails.classList.add("hide");
+
+
+            saveBtn.classList.remove("hide");
+            cancelProfileBtn.classList.remove("hide");
+            cameraBtn.classList.remove("hide");
+            displayNameInput.classList.remove("hide");
+            descriptionInput.classList.remove("hide");
+            carousel.classList.remove("hide");
+            displayName.focus();
+        })
+        }
+
+
+        saveBtn.addEventListener("click", (event) => {
+            // event.preventDefault();
+            event.target.classList.add("hide");
+            cancelProfileBtn.classList.add("hide");
+            cameraBtn.classList.add("hide");
+            displayNameInput.classList.add("hide");
+            descriptionInput.classList.add("hide");
+            carousel.classList.add("hide");
+
+            editBtn.classList.remove("hide");
+            displayName.classList.remove("hide");
+            description.classList.remove("hide");
+            profileEmail.classList.remove("hide");
+            profileActivitiesLabel.classList.remove("hide");
+            activityHistory.classList.remove("hide");
+            relationshipDetails.classList.remove("hide");
+
+        })
+
+        cancelProfileBtn.addEventListener("click", (event) => {
+            location.reload();
+        })
+        // saving edited profile
+
+        displayNameInput.addEventListener("change", (event) => {
+            displayName.innerText = event.target.value;
+        })
+
+        descriptionInput.addEventListener("change", (event) => {
+            description.innerText = event.target.value;
+        })
+        // form carousel
+
+        const profileImage = document.getElementById("preview");
+        const avatars = document.querySelectorAll(".avatar");
+        const avatarRadios = document.querySelectorAll('input[type="radio"]');
+
+        // uploading profile picture
+
+        const profileImageInput = document.getElementById("file-upload");
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            console.log(file);
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    preview.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+
+                // remove selected avatar if any
+                avatarRadios.forEach((item) => {
+                    item.checked = false;
+                });
+                avatars.forEach((avatar) => {
+                    avatar.classList.remove("selected");
+                });
+            }
+        }
+
+        profileImageInput.addEventListener("change", previewImage);
+
+        // upload selected avatar on click
+
+        function previewAvater(event) {
+            const target = event.target.parentElement;
+            const src = event.target.src;
+            const profileImage = document.getElementById("preview");
+
+            profileImage.src = src;
+
+            avatars.forEach((item) => {
+                item.classList.remove("selected");
+            });
+
+            target.classList.add("selected");
+
+            // remove chosen profile picture if any
+            profileImageInput.value = "";
+        }
+
+        avatars.forEach((avatar) => {
+            avatar.addEventListener("click", (event) => {
+                previewAvater(event);
+            });
+        });
+
+        // carousel
+        const carouselBtn = document.querySelectorAll(".carousel-btn");
+        const track = document.querySelector(".carousel-track");
+        const container = document.querySelector(".carousel-container");
+        const avatarInputs = document.querySelectorAll("[type=radio]")
+        let currentIndex = 0;
+
+        function scrollCarousel(direction) {
+            const avatarWidth = avatars[0].offsetWidth + 20; // 80px width + 10px margin on each side
+            const visibleAvatars = Math.floor(container.offsetWidth / avatarWidth);
+
+            currentIndex += direction;
+
+            // Prevent scrolling out of bounds
+            if (currentIndex < 0) {
+                currentIndex = 0;
+            } else if (currentIndex > avatars.length - visibleAvatars + 1) {
+                currentIndex = 0;
+            }
+
+            track.style.transform = `translateX(-${currentIndex * avatarWidth}px)`;
+        }
+
+        carouselBtn[0].addEventListener("click", () => {
+            scrollCarousel(-1);
+        });
+        carouselBtn[1].addEventListener("click", () => {
+            scrollCarousel(1);
+        });
+
+        const ejsObj = <%- JSON.stringify(details) %>;
+
+        avatars.forEach((avatar, index) => {
+
+            if (ejsObj.avatar == avatar.getAttribute("for")) {
+                avatar.classList.add("selected");
+                avatarInputs[index].checked = true;
+                
+            }
+        })
+        // activity history
+
+        const historyBtn = document.querySelectorAll(".history-btn");
+        const postContainer = document.querySelectorAll(".post-container");
+        const completedHistory = document.querySelector(".completed-history");
+        const ongoingHistory = document.querySelector(".ongoing-history");
+
+        historyBtn.forEach((button, index) => {
+            button.addEventListener("click", (event) => {
+                // console.log("clicked");
+                
+                if (!historyBtn[index].classList.contains("active")) {
+                    historyBtn.forEach((button) => {
+                        button.classList.remove("active");
+                    })
+                    historyBtn[index].classList.add("active");
+
+                    postContainer.forEach((history) => {
+                        history.classList.remove("show-history");
+                        history.style.display = "none";
+                    })
+                    ongoingHistory.style.transform = "translateX(-100%)"
+                    completedHistory.style.transform = "translateX(100%)"
+
+
+                    postContainer[index].style.display = "flex";
+
+
+                    setTimeout(() => {
+                        postContainer[index].classList.add("show-history");
+                        postContainer[index].style.transform = "translateX(0)";
+                    }, 10);
+                }
+
+            });
+        });
+
+
+        // replymodal
+
+        
+        const replyModal = document.querySelector(".modal-overlay");
+        const replyBtns = document.querySelectorAll(".comment-logo-container");
+        const cancelReplyBtn = document.querySelector(".cancel-reply");
+        const replyInput = document.querySelectorAll(".reply-input");
+
+        replyBtns.forEach((button) => {
+        button.addEventListener("click", function (event) {
+        event.stopPropagation();
+
+        const replyBtn = event.target.closest(".comment-logo-container");
+        const userAvatar = replyBtn.getAttribute("data-userAvatar");
+        const post = JSON.parse(replyBtn.getAttribute("data-post"));
+        const userId = replyBtn.getAttribute("data-userId");
+        const user = JSON.parse(replyBtn.getAttribute("data-user"));
+        const postProfile = document.querySelector("#post-profile");
+        const replyProfile = document.querySelector("#reply-profile");
+        const postPopup = document.querySelector("#post-popup");
+        const replyPopup = document.querySelector("#reply-popup");
+
+        const postImageSrc = post.image_path ? post.image_path :  "./assets/images/profile-placeholder.jpg";
+        const replyImageSrc = userAvatar ? userAvatar :  "./assets/images/profile-placeholder.jpg";
+
+        postProfile.innerHTML=`
+                               <a href="/user-profile/${post.post_owner_id}"> 
+                                 <img src="${postImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        replyProfile.innerHTML=`
+                               <a href="/user-profile/${user.id}"> 
+                                 <img src="${replyImageSrc}" alt="profile-image">
+                               </a>
+                              `;
+        postPopup.innerHTML=`
+                                 <h1>${post.display_name}</h1>
+                                 <p>${post.activity}</p>
+                               `
+        replyPopup.innerHTML=`
+                                <h1>${user.display_name}</h1>
+                                <form action="/submit-reply" method="POST">
+                                 <input type="text" name="comment" id="comment-input" placeholder="Replying to ${post.display_name}" class="reply-input" required>
+                                 <input type="hidden" name="post-id" value=${post.post_id}>
+                                 <button type="submit">Post</button>
+                                </form>
+                               `
+
+
+        replyModal.classList.add("show-modal");
+        return;
+        
+        });
+        });
+      
+        
+        document.addEventListener("click", function(event) {
+        if (event.target === replyModal) {
+        replyModal.classList.remove("show-modal");
+        return;
+        }
+        if (event.target.classList.contains("cancel-reply")) {
+             replyModal.classList.remove("show-modal"); 
+             return
+        }
+        });
+
+
+    </script>
+
+    <%- include('partials/footer') %>

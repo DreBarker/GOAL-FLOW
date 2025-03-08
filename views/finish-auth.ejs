@@ -1,0 +1,191 @@
+<%- include('partials/header') %>
+
+    <div class="content">
+        <div class="hero-wrapper">
+            <div class="hero-image-container">
+                <header>
+                    <img src="./assets/icons/GOAL-FLOW.png" alt="goal-flow-logo">
+                </header>
+                <img class="finish-auth-hero" src="./assets/images/FINISH-SETUP-HERO.png" alt="finish-page-hero-image">
+
+            </div>
+
+            <div class="finish-form-container">
+                <form action="/finish-auth" method="POST" enctype="multipart/form-data">
+                    <div class="profile-image-container">
+                        <h1>Upload a picture</h1>
+                        <div class="profile-picture">
+                            <img id="preview" src="./assets/images/profile-placeholder.jpg" alt="profile-picture">
+                        </div>
+
+                        <label for="file-upload">
+                            <!-- <img src="./assets/icons/Camera.png" alt="camera-icon"> -->
+                        </label>
+                        <input type="file" id="file-upload" accept="image/*" name="profile-picture" hidden>
+
+                    </div>
+
+                    <img src="./assets/icons/OR.png" alt="">
+
+                    <!-- carousel -->
+
+                    <div class="carousel-container">
+                        <h1>Choose your Avatar</h1>
+                        <div class="carousel">
+                            <div class="carousel-btn prev">&#8249;</div>
+                            <div class="carousel-track">
+                                <label class="avatar" for="Bob">
+                                    <img src="./assets/Animoji/Bob.png" alt="Avatar 1">
+                                </label>
+                                <input type="radio" name="avatar" value="Bob" id="Bob" hidden>
+
+                                <label class="avatar" for="Sofia">
+                                    <img src="./assets/Animoji/Sofia.png" alt="Avatar 2">
+                                </label>
+                                <input type="radio" name="avatar" value="Sofia" id="Sofia" hidden>
+
+                                <label class="avatar" for="Eric">
+                                    <img src="./assets/Animoji/Eric.png" alt="Avatar 3">
+                                </label>
+                                <input type="radio" name="avatar" value="Eric" id="Eric" hidden>
+
+                                <label class="avatar" for="Luke">
+                                    <img src="./assets/Animoji/Luke.png" alt="Avatar 4">
+                                </label>
+                                <input type="radio" name="avatar" value="Luke" id="Luke" hidden>
+
+                                <label class="avatar" for="Annette">
+                                    <img src="./assets/Animoji/Annette.png" alt="Avatar 5">
+                                </label>
+                                <input type="radio" name="avatar" value="Annette" id="Annette" hidden>
+
+                                <label class="avatar" for="Aisha">
+                                    <img src="./assets/Animoji/Aisha.png" alt="Avatar 6">
+                                </label>
+                                <input type="radio" name="avatar" value="Aisha" id="Aisha" hidden>
+
+                                <label class="avatar" for="George">
+                                    <img src="./assets/Animoji/George.png" alt="Avatar 7">
+                                </label>
+                                <input type="radio" name="avatar" value="Goerge" id="George" hidden>
+
+                                <label class="avatar" for="Barbara">
+                                    <img src="./assets/Animoji/Barbara.png" alt="Avatar 8">
+                                </label>
+                                <input type="radio" name="avatar" value="Barbara" id="Barbara" hidden>
+
+                                <label class="avatar" for="Melly">
+                                    <img src="./assets/Animoji/Melly.png" alt="Avatar 9">
+                                </label>
+                                <input type="radio" name="avatar" value="Melly" id="Melly" hidden>
+
+                                <label class="avatar" for="Martin">
+                                    <img src="./assets/Animoji/Martin.png" alt="Avatar 10">
+                                </label>
+                                <input type="radio" name="avatar" value="Martin" id="Martin" hidden>
+
+                            </div>
+                            <div class="carousel-btn next">&#8250;</div>
+                        </div>
+                    </div>
+
+                    <!-- carousel ends -->
+
+                    <input type="text" class="form-control" name="displayname" placeholder="displayname"  required>
+
+                    <button type="submit">Finish</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const profileImage = document.getElementById("preview");
+        const avatars = document.querySelectorAll(".avatar");
+        const avatarRadios = document.querySelectorAll('input[type="radio"]');
+
+        // uploading profile picture
+
+        const profileImageInput = document.getElementById("file-upload");
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            console.log(file);
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function () {
+                    preview.src = reader.result;
+                };
+                reader.readAsDataURL(file);
+
+                // remove selected avatar if any
+                avatarRadios.forEach((item) => {
+                    item.checked = false;
+                });
+                avatars.forEach((avatar) => {
+                    avatar.classList.remove("selected");
+                });
+            }
+        }
+
+        profileImageInput.addEventListener("change", previewImage);
+
+        // upload selected avatar on click
+
+        function previewAvater(event) {
+            const target = event.target.parentElement;
+            const src = event.target.src;
+            const profileImage = document.getElementById("preview");
+
+            profileImage.src = src;
+
+            avatars.forEach((item) => {
+                item.classList.remove("selected");
+            });
+
+            target.classList.add("selected");
+
+            // remove chosen profile picture if any
+            profileImageInput.value = "";
+        }
+
+        avatars.forEach((avatar) => {
+            avatar.addEventListener("click", (event) => {
+                previewAvater(event);
+            });
+        });
+
+        // carousel
+        const carouselBtn = document.querySelectorAll(".carousel-btn");
+        const track = document.querySelector(".carousel-track");
+        const container = document.querySelector(".carousel-container");
+        let currentIndex = 0;
+
+        function scrollCarousel(direction) {
+            const avatarWidth = avatars[0].offsetWidth + 20; // 80px width + 10px margin on each side
+            const visibleAvatars = Math.floor(container.offsetWidth / avatarWidth);
+
+            currentIndex += direction;
+
+            // Prevent scrolling out of bounds
+            if (currentIndex < 0) {
+                currentIndex = 0;
+            } else if (currentIndex > avatars.length - visibleAvatars) {
+                currentIndex = 0;
+            }
+
+            track.style.transform = `translateX(-${currentIndex * avatarWidth}px)`;
+        }
+
+        carouselBtn[0].addEventListener("click", () => {
+            scrollCarousel(-1);
+        });
+        carouselBtn[1].addEventListener("click", () => {
+            scrollCarousel(1);
+        });
+
+
+
+    </script>
+    <%- include('partials/footer') %>
